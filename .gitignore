@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual environment
+venv/
+.venv/
+env/
+
+# YOLO training outputs
+runs/
+*.pt
+*.onnx
+
+# Dataset
+dataset/images/
+dataset/labels/
+
+# Large test videos
+*.mp4
+*.avi
+*.mov
+*.mkv
+
+# Generated results
+results/
+
+# Uploaded test images
+test_images/
+
+# Environment variables
+.env
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
