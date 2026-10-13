@@ -1,6 +1,22 @@
-ultralytics
-opencv-python
-numpy
-matplotlib
-pandas
-pyyaml
+# AI-Based Road Hazard Early Detection and Adaptive Safe-Speed Warning System
+# Core ML & Vision Dependencies
+ultralytics>=8.0.0
+opencv-python>=4.8.0
+torch>=2.0.0
+torchvision>=0.15.0
+pillow>=10.0.0
+numpy>=1.24.0
+pandas>=2.0.0
+matplotlib>=3.7.0
+pyyaml>=6.0
+
+# Dataset Collection & Verification
+kaggle>=1.6.0
+roboflow>=1.1.0
+tqdm>=4.65.0
+
+# API & Web Service Dependencies (Segment 3)
+fastapi>=0.110.0
+uvicorn>=0.28.0
+python-multipart>=0.0.9
+

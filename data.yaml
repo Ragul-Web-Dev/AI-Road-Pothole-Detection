@@ -1,9 +1,7 @@
-# YOLO Dataset Configuration for Road Pothole Detection (Phase 1 Baseline)
-path: dataset  # dataset root dir (relative to pothole-research directory)
+path: dataset
 train: images/train
 val: images/val
 test: images/test
-
-# Classes
+nc: 1
 names:
   0: pothole

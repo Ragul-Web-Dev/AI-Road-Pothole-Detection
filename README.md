@@ -40,10 +40,13 @@ pothole-research/
 ├── test_images/            # General test media
 ├── runs/                   # Model training runs and weights
 ├── scripts/
-│   ├── check_dataset.py    # Phase 1: Dataset integrity & split statistics checker
-│   ├── visualize_dataset.py# Phase 1: Ground-truth visual verification
-│   ├── train.py            # Phase 1: Baseline YOLO transfer learning training
-│   ├── validate.py         # Phase 1: Validation evaluation & metrics logger
+│   ├── download_dataset.py         # Phase 1: Automated dataset downloader & VOC to YOLO converter
+│   ├── clean_and_prepare_dataset.py# Phase 1: Image validation, SHA-256 deduplication & 70:20:10 splitter
+│   ├── validate_dataset_integrity.py# Phase 1: Cross-split leakage auditor & bbox validator
+│   ├── check_dataset.py            # Phase 1: Quick dataset integrity & split statistics checker
+│   ├── visualize_dataset.py        # Phase 1: Ground-truth visual verification
+│   ├── train.py                    # Phase 1: Baseline YOLO transfer learning training
+│   ├── validate.py                 # Phase 1: Validation evaluation & metrics logger
 │   ├── detect.py           # Phase 1: Basic image/video inference
 │   ├── dashcam.py          # Phase 2: Dashcam tracking, FPS benchmarking & HUD warnings
 │   ├── phase2_report.py    # Phase 2: Dashcam tracking summary generator
@@ -75,12 +78,34 @@ pothole-research/
 │
 ├── data.yaml               # YOLO dataset configuration
 ├── requirements.txt        # Python dependencies
+├── DATASET_PREPARATION_GUIDE.md # Detailed data collection, cleaning & audit guide
 └── README.md
 ```
 
 ---
 
-## 5. How to Run Phase 3
+## 5. Dataset Preparation Pipeline (Phase 1)
+
+For comprehensive instructions, see [DATASET_PREPARATION_GUIDE.md](file:///e:/React/Real/Code/MERN-Projects/final_year/pothole-research/DATASET_PREPARATION_GUIDE.md).
+
+### Quick Commands:
+```bash
+# 1. Download verified public dataset (Kaggle benchmark)
+python scripts/download_dataset.py --source kaggle --dataset chitholian-potholes --target-dir dataset/raw
+
+# 2. Clean, deduplicate (SHA-256), validate bounding boxes & split (70:20:10)
+python scripts/clean_and_prepare_dataset.py --raw-dir dataset/raw --output-dir dataset --classes pothole --split 0.7,0.2,0.1 --seed 42 --yaml data.yaml
+
+# 3. Verify dataset integrity & zero cross-split data leakage
+python scripts/validate_dataset_integrity.py --yaml data.yaml --report-dir results
+
+# 4. Visually verify sample bounding boxes
+python scripts/visualize_dataset.py --split train --samples 5
+```
+
+---
+
+## 6. How to Run Phase 3
 
 ### Step 1: Place Test Data in Condition Folders
 Add test road images (`.jpg`, `.png`) or video files (`.mp4`) into:

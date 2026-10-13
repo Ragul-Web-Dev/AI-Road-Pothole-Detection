@@ -16,6 +16,8 @@ runs/
 # Dataset
 dataset/images/
 dataset/labels/
+dataset/raw/
+dataset/quarantine/
 
 # Large test videos
 *.mp4
