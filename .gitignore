@@ -71,6 +71,7 @@ results/*
 # Temporary & OS files
 # ==========================
 *.log
+*.zip
 .DS_Store
 Thumbs.db
 .vscode/
