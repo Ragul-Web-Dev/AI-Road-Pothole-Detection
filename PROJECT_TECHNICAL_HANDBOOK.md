@@ -702,3 +702,4 @@ To master and defend your project, follow this 10-step study sequence:
 
 ---
 *End of Master Technical Handbook.*
+

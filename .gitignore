@@ -1,43 +1,82 @@
+# ==========================
+# Node.js / React / Vite
+# ==========================
+node_modules/
+dist/
+.vite/
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# ==========================
 # Python
+# ==========================
 __pycache__/
 *.py[cod]
 *.pyo
+*.pyd
+.Python
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
 
-# Virtual environment
-venv/
+# Python virtual environments
 .venv/
+venv/
 env/
 
-# YOLO training outputs
+# ==========================
+# Environment variables
+# ==========================
+.env
+.env.*
+!.env.example
+
+# ==========================
+# YOLO / Model training
+# ==========================
 runs/
 *.pt
 *.onnx
+*.engine
 
-# Dataset
+# ==========================
+# Dataset files (large media)
+# ==========================
 dataset/images/
 dataset/labels/
 dataset/raw/
 dataset/quarantine/
-
-# Large test videos
+pothole-research/dataset/
+test_images/
 *.mp4
 *.avi
 *.mov
 *.mkv
 
-# Generated results
-results/
+# ==========================
+# Subsystem local workspace
+# ==========================
+pothole-research/
 
-# Uploaded test images
-test_images/
+# ==========================
+# Generated results & telemetry
+# Keep evaluation plots for README rendering
+# ==========================
+results/*
+!results/evaluation/
+!results/evaluation/**
 
-# Environment variables
-.env
-
-# IDE
+# ==========================
+# Temporary & OS files
+# ==========================
+*.log
+.DS_Store
+Thumbs.db
 .vscode/
 .idea/
 
-# OS
-.DS_Store
-Thumbs.db
+# ==========================
+# Private Viva Voce Preparation
+# ==========================
+PROJECT_VIVA_QUESTIONS.*

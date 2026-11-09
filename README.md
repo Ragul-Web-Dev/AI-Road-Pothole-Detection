@@ -1,125 +1,333 @@
-# Machine Learning & Computer Vision Research Subsystem
-## Real-Time Road Pothole Detection and Driver Warning System
+# Real-Time Road Pothole Detection and Driver Warning System
 
-[![Model](https://img.shields.io/badge/Architecture-YOLOv8n%20(Ultralytics)-blue.svg)](https://github.com/ultralytics/ultralytics)
-[![mAP@0.50](https://img.shields.io/badge/Test%20mAP%400.50-71.27%25-brightgreen.svg)](../results/evaluation/precision_recall_curve_ieee.png)
-[![Throughput](https://img.shields.io/badge/Inference%20Speed-30.9%20ms%20%7C%2027--32%20FPS%20(CPU)-success.svg)](../results/evaluation/evaluation_report.txt)
-[![PyTorch](https://img.shields.io/badge/PyTorch-2.14.1%2Bcpu-EE4C2C.svg)](https://pytorch.org/)
+[![Model](https://img.shields.io/badge/Model-YOLOv8n-blue.svg)](https://github.com/ultralytics/ultralytics)
+[![Backend](https://img.shields.io/badge/Backend-FastAPI%20%7C%20Uvicorn-009688.svg)](https://fastapi.tiangolo.com/)
+[![Frontend](https://img.shields.io/badge/Frontend-React%2018%20%7C%20Vite%206-61DAFB.svg)](https://vitejs.dev/)
+[![Styling](https://img.shields.io/badge/Styling-Tailwind%20CSS%203.4-38B2AC.svg)](https://tailwindcss.com/)
+[![Deep Learning](https://img.shields.io/badge/Engine-PyTorch%202.14.1%2Bcpu-EE4C2C.svg)](https://pytorch.org/)
+[![mAP@0.50](https://img.shields.io/badge/Test%20mAP%400.50-71.27%25-brightgreen.svg)](#3-empirical-evaluation--benchmark-performance)
+[![Throughput](https://img.shields.io/badge/Real--Time%20FPS-26.8%20--%2032.1%20FPS%20(CPU)-success.svg)](#3-empirical-evaluation--benchmark-performance)
+[![Status](https://img.shields.io/badge/Prototype%20Status-Simulation--Based%20Verified-orange.svg)](#10-technical-scope-and-academic-disclaimer)
 
-This subsystem encapsulates the dataset curation, transfer learning pipeline, model validation, continuous video processing, and FastAPI REST microservice powering the **Real-Time Road Pothole Detection and Driver Warning System**.
-
----
-
-## 1. Verified Model Specifications
-
-- **Model Variant**: Ultralytics YOLOv8 Nano (`YOLOv8n`)
-- **Trained Weights Path**: `runs/detect/pothole_training/weights/best.pt` (6.5 MB)
-- **Architecture**: 73 layers, 3,137,700 parameters (3.13M), 8.6 GFLOPs at $640 \times 640$ input
-- **Pretrained Initialization**: Pretrained on MS COCO `yolov8n.pt`
-- **Class Configuration**: Single-class detection: `0: pothole`
-- **Runtime Framework**: Ultralytics YOLO 8.4.175 with PyTorch 2.14.1+cpu
-- **Execution Target**: CPU multi-threaded execution (16 logical threads on Intel Core i7-11700F @ 2.50 GHz)
+> **Academic Final Year Project**  
+> An edge-oriented computer vision pipeline and reactive driver assistance system for real-time road hazard localization, continuous dashcam video processing, and acoustic-visual collision warning.
 
 ---
 
-## 2. Test Set Evaluation Metrics
+## 1. Project Overview
 
-Evaluated on the independent **74-image labelled test split** (148 ground-truth annotations and 70 negative road images) using standard IoU threshold $0.50$:
+The **Real-Time Road Pothole Detection and Driver Warning System** addresses the severe road safety and vehicular damage hazards posed by unmonitored road surface degradation. By integrating an optimized **Ultralytics YOLOv8 Nano (`YOLOv8n`)** deep learning model with an asynchronous **FastAPI** backend and an interactive **React** heads-up dashboard, the system detects road potholes in real time and alerts drivers before impact.
 
-| Metric | Empirical Score | Notes |
-| :--- | :---: | :--- |
-| **mAP@0.50** | **71.27% (0.7127)** | Primary academic benchmark metric |
-| **mAP@0.50:0.95** | **45.63% (0.4563)** | Multi-threshold localization metric |
-| **Optimal F1-Score** | **0.6952** | Achieved at confidence threshold $conf = 0.340$ |
-| **Operational Precision ($conf=0.25$)** | **69.59% (0.6959)** | True Positives: 103 / 148 |
-| **Operational Recall ($conf=0.25$)** | **69.59% (0.6959)** | False Positives: 45 \| False Negatives: 45 |
-| **Inference Latency** | **33.3 – 37.4 ms** | Pre: 2.5 ms \| Model: 30.9 ms \| Post (NMS): 2.0 ms |
-| **Real-Time Frame Rate** | **26.8 – 32.1 FPS** | Exceeds 25 FPS video real-time threshold on CPU |
-
-All high-resolution evaluation curves (PR curve, F1-confidence, confusion matrix) are saved in [`../results/evaluation/`](file:///e:/React/Real/Code/MERN-Projects/final_year/results/evaluation/).
+### Core Capabilities:
+- **Lightweight Deep Learning**: Employs a custom-trained YOLOv8n single-stage detector (3.13 million parameters, 8.6 GFLOPs) achieving high mean Average Precision with minimal edge latency.
+- **Asynchronous Microservice Architecture**: Decoupled REST communication between a high-throughput Python FastAPI inference server and a modern React Vite frontend.
+- **Dual Driver Alerting Engine**:
+  - **Visual HUD**: Dynamic bounding-box overlays, distance/hazard categorization, and recommended deceleration advisory limits.
+  - **Acoustic Synthesizer**: Zero-dependency browser-native Web Audio API dual-tone frequency sweeps ($880\text{ Hz} \rightarrow 550\text{ Hz}$) with anti-fatigue cooldown throttling.
+- **Continuous Dashcam & Webcam Tracking**: Live video stream inference with moving average FPS benchmarking, dynamic frame dropping, and threshold controls.
+- **Environmental Robustness Validation**: Evaluation protocols benchmarking detection accuracy across four real-world conditions: Day, Evening (low sun), Night (headlight glare), and Rain (wet reflections).
+- **Persistent Telemetry Logging**: Structured flat-file CSV inference logging recording timestamps, confidence scores, bounding box geometries, and inference latencies.
 
 ---
 
-## 3. Dataset Engineering
+## 2. System Architecture
 
-The dataset combines **665 pothole hazard images** (Kaggle `chitholian/annotated-potholes-dataset`) and **70 plain road images** (Kaggle `virenbr11/pothole-and-plain-rode-images`) to prevent false-positive detections on clear pavement.
+> [!NOTE]
+> Although the root directory is named `MERN-Projects` for legacy workspace organization, this project is **not** a MERN stack. It uses a decoupled **React-Python (FastAPI + YOLOv8n) Microservice Architecture** with local CSV telemetry logging.
 
-- **Total Images**: 735 clean road images
-- **Total Annotations**: 1,739 bounding boxes
-- **Split Distribution**:
-  - `dataset/images/train/`: **514 images** (1,274 boxes) — 70%
-  - `dataset/images/val/`: **147 images** (317 boxes) — 20%
-  - `dataset/images/test/`: **74 images** (148 boxes) — 10%
-- **Data Leakage Verification**: All splits audited via SHA-256 image hashes; zero cross-split overlap verified.
+```mermaid
+flowchart TD
+    subgraph SENSING["Input Layer (Simulation / Dashcam)"]
+        A1["Live Webcam Feed\n(WebRTC Stream)"] 
+        A2["Dashcam Road Video\n(MP4 / AVI Stream)"]
+        A3["Static Road Photos\n(JPEG / PNG Upload)"]
+    end
 
----
+    subgraph CLIENT["Frontend Dashboard (React 18 + Vite :5173)"]
+        B1["Dashboard UI & Control Panel\n(src/App.jsx)"]
+        B2["Live Camera HUD Canvas\n(src/components/LiveCameraPanel.jsx)"]
+        B3["Acoustic Warning Engine\n(src/utils/audioAlert.js - Web Audio API)"]
+    end
 
-## 4. Subsystem Directory Structure
+    subgraph BACKEND["FastAPI ML Microservice (Python 3.13 :5000)"]
+        C1["CORS & Request Dispatcher\n(pothole-research/scripts/server.py)"]
+        C2["Base64 Image Decoder & OpenCV Resize\n(640x640 Input Buffer)"]
+        C3["YOLOv8n PyTorch Engine\n(pothole_training/weights/best.pt)"]
+        C4["Advisory Assessment & Threshold Filter\n(Conf: 0.25 | IoU: 0.45)"]
+        C5["CSV Telemetry Logger\n(results/image_inference_logs.csv)"]
+    end
 
-```
-pothole-research/
-├── data.yaml                               # YOLO dataset configuration
-├── runs/
-│   └── detect/
-│       └── pothole_training/
-│           ├── weights/
-│           │   ├── best.pt                 # Optimal checkpoint (6.5 MB)
-│           │   └── last.pt                 # Epoch 50 final checkpoint
-│           ├── results.csv                 # Per-epoch training/val loss logs
-│           └── confusion_matrix.png        # Training-phase validation matrix
-├── dataset/
-│   ├── images/                             # train/ (514), val/ (147), test/ (74)
-│   ├── labels/                             # YOLO txt format bounding boxes
-│   ├── day/                                # Day illumination test set
-│   ├── evening/                            # Low-sun / evening test set
-│   ├── night/                              # Night / headlight reflection test set
-│   └── rain/                               # Wet / rain condition test set
-└── scripts/
-    ├── server.py                           # FastAPI REST inference service (:5000)
-    ├── dashcam.py                          # Continuous video tracking & FPS benchmark
-    ├── evaluate_conditions.py              # Day/Evening/Night/Rain robustness suite
-    ├── clean_and_prepare_dataset.py        # Dataset validation & 70/20/10 split generator
-    ├── validate_dataset_integrity.py       # SHA-256 cross-split leakage verification
-    ├── train.py                            # Transfer learning script
-    └── validate.py                         # Test set evaluation logger
+    A1 --> B2
+    A2 --> B1
+    A3 --> B1
+
+    B1 -- "HTTP POST /api/detect/image\n(Base64 Payload)" --> C1
+    B2 -- "HTTP POST /api/detect/frame\n(Continuous Video Loop)" --> C1
+
+    C1 --> C2 --> C3 --> C4
+    C4 --> C5
+    C4 -- "JSON Detection Response\n(Boxes, Scores, Advice)" --> B1
+    C4 -- "JSON Detection Response" --> B2
+
+    B2 -- "Trigger Hazard Alert" --> B3
+    B1 -- "Render Warning Banners" --> B1
 ```
 
 ---
 
-## 5. Execution Commands
+## 3. Empirical Evaluation & Benchmark Performance
 
-### 1. Launch FastAPI Backend Inference Server
+The trained model (`pothole-research/runs/detect/pothole_training/weights/best.pt`) was evaluated on the independent **74-image labelled test split** containing **148 verified ground-truth pothole annotations** and **70 negative road baseline images** using standard Ultralytics validation protocol ($\text{IoU} = 0.50$ matching).
+
+### Primary Evaluation Metrics:
+| Metric | Benchmark Result | Evaluation Parameters |
+| :--- | :--- | :--- |
+| **mAP@0.50** | **71.27% (0.7127)** | Tested on unseen test split (74 images, 148 targets) |
+| **mAP@0.50:0.95** | **45.63% (0.4563)** | Standard COCO multi-threshold metric |
+| **Optimal F1-Score** | **0.6952 (69.52%)** | Reached at confidence threshold $conf = 0.340$ |
+| **Operational Working Point** | **$conf = 0.25$** | **Precision = 69.59%**, **Recall = 69.59%**, **F1 = 0.6959** |
+| **Confusion Counts ($conf=0.25$)** | **TP: 103 \| FP: 45 \| FN: 45** | Strict IoU 0.50 overlap against ground truth |
+| **Inference Latency** | **33.3 – 37.4 ms** | Preprocess: 2.5 ms \| Inference: 30.9 ms \| Postprocess: 2.0 ms |
+| **Execution Frame Rate** | **26.8 – 32.1 FPS** | CPU multi-threaded inference on Intel Core i7-11700F |
+
+### Precision–Recall Curve:
+The Precision-Recall curve below illustrates the trade-off across varying confidence thresholds:
+
+![Precision-Recall Curve](results/evaluation/precision_recall_curve_ieee.png)
+
+> [!TIP]
+> The full suite of high-resolution (300 DPI) evaluation plots is available in [`results/evaluation/`](results/evaluation/):
+> - [IEEE Format PR Curve](results/evaluation/precision_recall_curve_ieee.png)
+> - [PR vs Recall Chart](results/evaluation/pr_vs_recall_chart.png)
+> - [Precision vs Confidence Curve](results/evaluation/precision_confidence_curve.png)
+> - [Recall vs Confidence Curve](results/evaluation/recall_confidence_curve.png)
+> - [F1 vs Confidence Curve](results/evaluation/f1_confidence_curve.png)
+> - [Confusion Matrix](results/evaluation/confusion_matrix.png)
+> - [Detailed Evaluation Report](results/evaluation/evaluation_report.txt)
+
+---
+
+## 4. Dataset Engineering & Integrity
+
+The model was trained on a verified dataset assembled from curated public repositories:
+- **Hazard Images**: 665 pothole images sourced from Kaggle (`chitholian/annotated-potholes-dataset`).
+- **Clean Negative Images**: 70 plain asphalt/road images sourced from Kaggle (`virenbr11/pothole-and-plain-rode-images`) to suppress false-positive alerts on road patches and shadows.
+- **Total Dataset Size**: **735 images** containing **1,739 ground-truth pothole annotations**.
+
+### Dataset Partitioning:
+| Split | Image Count | Ratio | Bounding Boxes | Role |
+| :--- | :---: | :---: | :---: | :--- |
+| **Train** | **514** | 70% | 1,274 | Model weight optimization and loss backpropagation |
+| **Validation** | **147** | 20% | 317 | Hyperparameter tuning and early-stopping validation |
+| **Test** | **74** | 10% | 148 | Strictly unseen final academic model evaluation |
+| **Total** | **735** | 100% | **1,739** | Verified with zero cross-split SHA-256 data leakage |
+
+Dataset configuration is maintained in [`data.yaml`](data.yaml).
+
+---
+
+## 5. Driver Warning & Safety Advisory Engine
+
+To deliver actionable feedback without requiring extra dashboard hardware, the system implements a dual-channel alerting mechanism:
+
+### 1. Visual Heads-Up Display (HUD)
+- **Bounding Boxes**: Green ($< 0.40$), Orange ($0.40 - 0.70$), and Red ($> 0.70$) bounding boxes projected onto the canvas over incoming frames.
+- **Hazard Proximity Index**: Approximated via bounding-box area ratios ($Area_{\text{box}} / Area_{\text{frame}}$).
+- **Advisory Speed Warning**: When a significant pothole is detected in the vehicle path, the UI computes an immediate speed reduction recommendation:
+  $$\text{Advisory Speed} = \max\left(20\text{ km/h}, \;\text{Posted Speed Limit} \times (1 - \text{Severity Factor})\right)$$
+
+### 2. Synthesized Acoustic Warning (Web Audio API)
+Implemented in [`src/utils/audioAlert.js`](file:///e:/React/Real/Code/MERN-Projects/final_year/src/utils/audioAlert.js):
+- **Frequency Sweep**: Synthesizes a rapid descending dual-tone pulse from $880\text{ Hz}$ to $550\text{ Hz}$ using browser oscillators.
+- **No External Audio Files**: Eliminates broken file paths, audio codec mismatches, or network audio download lag.
+- **Anti-Fatigue Cooldown**: Enforces an automatic **2.5-second cooldown timer** between consecutive beeps to prevent driver annoyance during clusters of potholes.
+
+---
+
+## 6. Directory Structure
+
+```
+final_year/
+├── index.html                                  # Vite single-page application entry HTML
+├── package.json                                # Node.js project manifests and frontend dependencies
+├── vite.config.js                              # Vite build and proxy configuration
+├── run_all.bat                                 # Unified Windows batch launcher for both servers
+├── requirements.txt                            # Root Python dependencies
+├── data.yaml                                   # Root YOLO dataset configuration reference
+│
+├── src/                                        # React Frontend Source Code
+│   ├── App.jsx                                 # Master dashboard, state management & single-image inference
+│   ├── main.jsx                                # React 18 DOM mount root
+│   ├── index.css                               # Tailwind CSS design system rules
+│   ├── components/
+│   │   └── LiveCameraPanel.jsx                 # Live webcam/dashcam streaming canvas & HUD overlays
+│   └── utils/
+│       └── audioAlert.js                       # Browser Web Audio API acoustic alarm generator
+│
+├── pothole-research/                           # Machine Learning & Computer Vision Research Hub
+│   ├── data.yaml                               # Active dataset configuration
+│   ├── runs/detect/pothole_training/weights/
+│   │   ├── best.pt                             # Optimized trained YOLOv8n weights (6.5 MB)
+│   │   └── last.pt                             # Final epoch checkpoint weights
+│   ├── dataset/
+│   │   ├── images/                             # train/ (514), val/ (147), test/ (74)
+│   │   ├── labels/                             # Corresponding YOLO txt annotations
+│   │   ├── day/                                # Day robustness test images
+│   │   ├── evening/                            # Evening/low-sun test images
+│   │   ├── night/                              # Nighttime headlight test images
+│   │   └── rain/                               # Rainy/wet asphalt test images
+│   └── scripts/
+│       ├── server.py                           # FastAPI REST microservice (:5000)
+│       ├── dashcam.py                          # Continuous video file / stream processor
+│       ├── evaluate_conditions.py              # Environmental condition robustness test suite
+│       ├── clean_and_prepare_dataset.py        # Dataset validation, deduplication & split generation
+│       ├── validate_dataset_integrity.py       # SHA-256 cross-split leakage verification
+│       ├── train.py                            # Transfer learning script with Ultralytics YOLO
+│       └── validate.py                         # Evaluation and validation metrics logger
+│
+├── results/                                    # System Outputs, Logs & Evaluation Artifacts
+│   ├── image_inference_logs.csv                # Persistent inference telemetry records
+│   └── evaluation/                             # Academic evaluation graphs and reports
+│       ├── precision_recall_curve_ieee.png     # 300 DPI IEEE-standard PR curve
+│       ├── pr_vs_recall_chart.png              # PR vs Recall chart with summary card
+│       ├── confusion_matrix.png                # Raw confusion matrix
+│       ├── confusion_matrix_normalized.png     # Normalized confusion matrix
+│       ├── f1_confidence_curve.png             # F1 vs Confidence curve
+│       ├── precision_confidence_curve.png      # Precision vs Confidence curve
+│       ├── recall_confidence_curve.png         # Recall vs Confidence curve
+│       ├── evaluation_results.csv              # Numerical metrics across confidence steps
+│       └── evaluation_report.txt               # Full technical evaluation summary
+│
+├── PROJECT_TECHNICAL_HANDBOOK.md               # 14-Part Comprehensive Engineering Handbook
+├── PROJECT_VIVA_QUESTIONS.md                   # 50+ Viva voce Q&A defense preparation guide
+├── PROJECT_SOURCE_CODE_MAP.md                  # Comprehensive code map with line references
+└── PROJECT_IMPLEMENTATION_VERIFICATION_REPORT.md# 10-Part technical implementation audit
+```
+
+---
+
+## 7. Academic Documentation Suite
+
+For comprehensive project viva defense, code review, and academic presentation, refer to the verified documentation suite located directly in the project root:
+
+1. **[Complete Project Technical Handbook (`PROJECT_TECHNICAL_HANDBOOK.md`)](PROJECT_TECHNICAL_HANDBOOK.md)**  
+   *14 exhaustive chapters covering Project Fundamentals, System Architecture, Dataset Engineering, YOLOv8n Deep Dive, Training Pipeline, Validation Protocols, FastAPI Backend, React Frontend, Hardware Benchmarks, and Viva Preparation.*
+   - Also available as: [`PROJECT_TECHNICAL_HANDBOOK.pdf`](PROJECT_TECHNICAL_HANDBOOK.pdf)
+
+2. **Project Viva Voce Examination Guide (`PROJECT_VIVA_QUESTIONS.md`)**  
+   *50+ technical questions and defensive answers across 10 categories: fundamentals, architecture, datasets, YOLOv8n internals, training hyperparameters, evaluation metrics, backend APIs, audio/visual warnings, hardware limits, and future roadmap (retained in offline student workspace).*
+
+3. **[Project Source Code Map (`PROJECT_SOURCE_CODE_MAP.md`)](PROJECT_SOURCE_CODE_MAP.md)**  
+   *Line-by-line file inspection, component hierarchy, API contracts, utility functions, and directory organization guide.*
+   - Also available as: [`PROJECT_SOURCE_CODE_MAP.pdf`](PROJECT_SOURCE_CODE_MAP.pdf)
+
+4. **[Implementation Verification & Audit Report (`PROJECT_IMPLEMENTATION_VERIFICATION_REPORT.md`)](PROJECT_IMPLEMENTATION_VERIFICATION_REPORT.md)**  
+   *10-part empirical audit verifying exact package versions, model weights, execution environments, database status, and testing parameters.*
+   - Also available as: [`PROJECT_IMPLEMENTATION_VERIFICATION_REPORT.pdf`](PROJECT_IMPLEMENTATION_VERIFICATION_REPORT.pdf)
+
+---
+
+## 8. Getting Started & Installation
+
+### Prerequisites:
+- **Operating System**: Windows 10/11, Ubuntu 20.04+, or macOS
+- **Python**: `3.10` to `3.13` with `pip`
+- **Node.js**: `v18.0.0` or higher with `npm`
+- **Webcam / Video Input**: Internal or external webcam, or sample dashcam video files
+
+### Step 1: Clone and Install Dependencies
+
 ```bash
-python scripts/server.py --port 5000
-```
-- Swagger UI Documentation: [http://localhost:5000/docs](http://localhost:5000/docs)
-- Health Probe: [http://localhost:5000/api/health](http://localhost:5000/api/health)
+# Clone the repository (or navigate to workspace)
+cd final_year
 
-### 2. Run Dashcam Video Stream Tracking
-```bash
-python scripts/dashcam.py --source test_images/road_video.mp4 --weights runs/detect/pothole_training/weights/best.pt
-```
+# Install Python backend dependencies
+pip install -r requirements.txt
 
-### 3. Evaluate Environmental Robustness
-```bash
-# Evaluate all conditions (Day, Evening, Night, Rain):
-python scripts/evaluate_conditions.py
-
-# Evaluate a specific condition:
-python scripts/evaluate_conditions.py --condition night --conf 0.25
+# Install React frontend dependencies
+npm install
 ```
 
-### 4. Verify Dataset Integrity & Zero Cross-Split Leakage
+### Step 2: Launch the System
+
+#### Method A: Unified One-Click Launcher (Windows)
+Double-click [`run_all.bat`](file:///e:/React/Real/Code/MERN-Projects/final_year/run_all.bat) or execute in PowerShell:
+```cmd
+.\run_all.bat
+```
+*This starts the FastAPI backend on Port 5000 and the React Vite development server on Port 5173 automatically.*
+
+#### Method B: Manual Launch (Separate Terminals)
+
+**Terminal 1 — FastAPI Backend Service:**
 ```bash
-python scripts/validate_dataset_integrity.py --yaml data.yaml --report-dir ../results
+python pothole-research/scripts/server.py --port 5000
+```
+- Interactive API Documentation: [http://localhost:5000/docs](http://localhost:5000/docs)
+- Health Check: [http://localhost:5000/api/health](http://localhost:5000/api/health)
+
+**Terminal 2 — React Frontend Application:**
+```bash
+npm run dev
+```
+- Dashboard UI: [http://localhost:5173](http://localhost:5173)
+
+---
+
+## 9. Hardware & Execution Environment
+
+The system has been benchmarked on the following verified hardware configuration:
+
+| Component | Specification | Operational Status |
+| :--- | :--- | :--- |
+| **Processor (CPU)** | Intel Core i7-11700F @ 2.50 GHz (8 cores, 16 threads) | **Active Execution Device** |
+| **System Memory (RAM)** | 16.0 GB DDR4 | Sustained ~550 MB footprint during inference |
+| **Graphics Card (GPU)** | NVIDIA GeForce RTX 3050 (8 GB VRAM) | Present on host machine |
+| **PyTorch Runtime** | `torch==2.14.1+cpu` (CPU multi-threaded build) | **Active (`CUDA Available: False`)** |
+| **Python Version** | Python 3.13.2 (64-bit) | Verified active runtime |
+| **Ultralytics Version** | Ultralytics YOLO 8.4.175 | Verified active package |
+| **Inference FPS** | **26.8 – 32.1 FPS** | Verified real-time performance on CPU |
+
+> [!NOTE]
+> Demonstrating real-time ($> 25\text{ FPS}$) performance strictly on CPU multi-threading validates that the system can be deployed on low-cost edge platforms (such as Intel NUCs or in-vehicle infotainment units) without requiring dedicated mobile GPUs.
+
+---
+
+## 10. Technical Scope and Academic Disclaimer
+
+### Verified Capabilities (Implemented):
+- [x] YOLOv8n single-pass pothole object localization ($640 \times 640$).
+- [x] Asynchronous FastAPI REST microservice (`/api/detect/image`, `/api/detect/frame`, `/api/health`).
+- [x] Responsive React heads-up dashboard with live bounding-box overlays.
+- [x] Synthetic dual-tone acoustic hazard alarm via browser Web Audio API with a 2.5-second cooldown.
+- [x] Persistent telemetry append logging in `results/image_inference_logs.csv`.
+- [x] Comprehensive environmental condition evaluation script (`evaluate_conditions.py`).
+- [x] 300 DPI IEEE-compliant Precision-Recall and evaluation curves.
+
+### Scope Disclaimers (Not Implemented / Future Roadmap):
+- **Simulation-Based Prototype**: The system is designed and tested as a software simulation prototype using dashcam video streams and live webcams. It is **not** physically connected to an automotive CAN bus or vehicle braking actuators.
+- **Database Status**: The system currently writes telemetry to high-performance local CSV files. MongoDB Atlas integration was investigated during design but is **not active** in this release.
+- **Geospatial Mapping**: GPS hardware coordinate logging and GIS heatmaps are planned for Phase 2 and are **not included** in the current build.
+- **Multi-Hazard Detection**: Model is trained exclusively on class `pothole` (Class ID `0`). Road crack and surface depression separation requires dedicated multi-class annotations.
+
+---
+
+## 11. Citation & Research Attribution
+
+If you utilize this pipeline, training setup, or evaluation methodologies in your academic research, please cite:
+
+```bibtex
+@misc{pothole_detection_system_2026,
+  title={Real-Time Road Pothole Detection and Driver Warning System},
+  author={Final Year Engineering Research Project},
+  year={2026},
+  howpublished={\url{https://github.com/}},
+  note={Evaluation mAP@0.50: 71.27\%, Real-time edge inference with YOLOv8n}
+}
 ```
 
 ---
 
-## 6. Academic References & Master Handbook
+## 12. License
 
-For full theoretical derivations, YOLOv8n layer breakdowns, loss functions, and viva voce defense questions, refer to the master documentation in the root directory:
-- [Complete Project Technical Handbook (`PROJECT_TECHNICAL_HANDBOOK.md`)](file:///e:/React/Real/Code/MERN-Projects/final_year/PROJECT_TECHNICAL_HANDBOOK.md)
-- [Project Viva Voce Examination Guide (`PROJECT_VIVA_QUESTIONS.md`)](file:///e:/React/Real/Code/MERN-Projects/final_year/PROJECT_VIVA_QUESTIONS.md)
-- [Project Source Code Map (`PROJECT_SOURCE_CODE_MAP.md`)](file:///e:/React/Real/Code/MERN-Projects/final_year/PROJECT_SOURCE_CODE_MAP.md)
-- [Implementation Verification Report (`PROJECT_IMPLEMENTATION_VERIFICATION_REPORT.md`)](file:///e:/React/Real/Code/MERN-Projects/final_year/PROJECT_IMPLEMENTATION_VERIFICATION_REPORT.md)
+This project is developed for educational and academic research purposes under the **MIT License**. Third-party datasets and libraries remain under their respective creator licenses.

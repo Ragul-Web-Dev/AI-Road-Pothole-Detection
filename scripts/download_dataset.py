@@ -223,6 +223,7 @@ def download_roboflow_dataset(api_key: str, workspace: str, project: str, versio
     Downloads a dataset from Roboflow Universe using official Roboflow API.
     """
     try:
+        # pyrefly: ignore[missing-import]
         from roboflow import Roboflow
     except ImportError:
         print("[ERROR] roboflow package not installed. Run: pip install roboflow")
