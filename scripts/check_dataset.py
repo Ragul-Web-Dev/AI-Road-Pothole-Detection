@@ -1,5 +1,5 @@
 """
-Dataset Validation Script - Phase 1 Research Pipeline
+Dataset Validation Script
 Checks YOLO dataset formatting, missing labels, invalid annotations, and split statistics.
 """
 

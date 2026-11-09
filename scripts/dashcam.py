@@ -1,6 +1,6 @@
 """
-Phase 2: Dashcam Video Processing & Pothole Tracking Pipeline
-Integrates the Phase 1 trained YOLO model with dashcam video/webcam feeds,
+Dashcam Video Processing & Pothole Tracking Pipeline
+Integrates the trained YOLO model with dashcam video/webcam feeds,
 performs frame-by-frame pothole tracking, real-time FPS benchmarking, and visual hazard warnings.
 """
 
@@ -25,7 +25,7 @@ def process_dashcam(
     weights_path = Path(weights)
     if not weights_path.exists():
         print("=" * 60)
-        print("[ERROR] Phase 1 trained model is required before Phase 2.")
+        print("[ERROR] Trained YOLO model weights are required.")
         print(f"Target model weights not found at: {weights_path}")
         print("Please train your baseline model first:")
         print("  python scripts/train.py --epochs 20")
@@ -49,7 +49,7 @@ def process_dashcam(
         video_name = source_file.name
 
     print("=" * 60)
-    print("PHASE 2 DASHCAM VIDEO PROCESSING & POTHOLE TRACKING")
+    print("DASHCAM VIDEO PROCESSING & POTHOLE TRACKING")
     print("=" * 60)
     print(f"Video Source:       {source}")
     print(f"Model Weights:      {weights_path}")
@@ -186,7 +186,7 @@ def process_dashcam(
             out_writer.write(frame)
 
             if show_preview:
-                cv2.imshow("Phase 2 Dashcam Pothole Tracking", frame)
+                cv2.imshow("Dashcam Pothole Tracking", frame)
                 if cv2.waitKey(1) & 0xFF == ord('q'):
                     print("\n[INFO] Stopped by user (q pressed).")
                     break
@@ -204,7 +204,7 @@ def process_dashcam(
     avg_fps = (processed_count / sum(processing_times)) if processing_times else 0.0
 
     print("\n" + "=" * 60)
-    print("PHASE 2 DASHCAM PROCESSING SUMMARY")
+    print("DASHCAM PROCESSING SUMMARY")
     print("=" * 60)
     print(f"Source Video:             {video_name}")
     print(f"Total Video Frames:       {frame_idx}")
@@ -260,9 +260,9 @@ def process_dashcam(
     print("=" * 60)
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Phase 2: Dashcam Video Pothole Tracking and Real-Time Hazard Warning.")
+    parser = argparse.ArgumentParser(description="Dashcam Video Pothole Tracking and Real-Time Hazard Warning.")
     parser.add_argument("--source", type=str, default="test_images/road_video.mp4", help="Path to road dashcam video or '0' for webcam")
-    parser.add_argument("--weights", type=str, default="runs/pothole_baseline/weights/best.pt", help="Phase 1 trained model weights (.pt)")
+    parser.add_argument("--weights", type=str, default="runs/pothole_baseline/weights/best.pt", help="Trained model weights (.pt)")
     parser.add_argument("--conf", type=float, default=0.25, help="Confidence threshold (0.0 - 1.0)")
     parser.add_argument("--skip", type=int, default=0, help="Frame skipping interval (0 = every frame, 1 = every 2nd frame)")
     parser.add_argument("--output", type=str, default="results/phase2_videos", help="Directory to save output video")

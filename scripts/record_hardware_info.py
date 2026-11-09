@@ -1,5 +1,5 @@
 """
-Hardware & Environment Profiler - Phase 2 Research Pipeline
+Hardware & Environment Profiler
 Inspects the actual host system hardware and software versions for reproducible research reporting.
 """
 

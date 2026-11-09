@@ -18,8 +18,8 @@ from pydantic import BaseModel, Field
 from ultralytics import YOLO
 
 app = FastAPI(
-    title="Road Hazard Early Detection & Safe-Speed Warning API",
-    description="Real-time YOLOv8n inference service for pothole detection with preliminary hazard advisories.",
+    title="Real-Time Road Pothole Detection and Driver Warning System API",
+    description="Real-time YOLOv8n inference service for road pothole detection with driver hazard advisories.",
     version="1.0.0",
 )
 
@@ -57,7 +57,7 @@ def resolve_model_path(custom_path: Optional[str] = None) -> tuple[Optional[Path
         except Exception:
             continue
 
-    return None, "No trained best.pt checkpoint found in candidate paths. Please ensure Phase 1 training has completed."
+    return None, "No trained best.pt checkpoint found in candidate paths. Please ensure YOLO model weights are available."
 
 
 def get_model(custom_path: Optional[str] = None) -> tuple[Optional[YOLO], Optional[str], Optional[str]]:
@@ -129,7 +129,7 @@ def health_check():
     model, path_str, warn = get_model()
     return {
         "status": "online",
-        "service": "AI-Based Road Hazard Detection Inference API",
+        "service": "Real-Time Road Pothole Detection and Driver Warning API",
         "model_loaded": model is not None,
         "model_path": path_str,
         "model_classes": model.names if model else None,

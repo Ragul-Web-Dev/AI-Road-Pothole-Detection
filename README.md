@@ -1,221 +1,125 @@
-# AI-Based Road Pothole Detection and Safe Path Identification System
-**Research Phase 3: Environmental Robustness Evaluation (Day / Evening / Night / Rain)**
+# Machine Learning & Computer Vision Research Subsystem
+## Real-Time Road Pothole Detection and Driver Warning System
+
+[![Model](https://img.shields.io/badge/Architecture-YOLOv8n%20(Ultralytics)-blue.svg)](https://github.com/ultralytics/ultralytics)
+[![mAP@0.50](https://img.shields.io/badge/Test%20mAP%400.50-71.27%25-brightgreen.svg)](../results/evaluation/precision_recall_curve_ieee.png)
+[![Throughput](https://img.shields.io/badge/Inference%20Speed-30.9%20ms%20%7C%2027--32%20FPS%20(CPU)-success.svg)](../results/evaluation/evaluation_report.txt)
+[![PyTorch](https://img.shields.io/badge/PyTorch-2.14.1%2Bcpu-EE4C2C.svg)](https://pytorch.org/)
+
+This subsystem encapsulates the dataset curation, transfer learning pipeline, model validation, continuous video processing, and FastAPI REST microservice powering the **Real-Time Road Pothole Detection and Driver Warning System**.
 
 ---
 
-## 1. Project Title
-**AI-Based Road Pothole Detection and Safe Path Identification System**  
-*Phase 3: Multi-Environmental Illumination and Weather Condition Robustness Evaluation*
+## 1. Verified Model Specifications
+
+- **Model Variant**: Ultralytics YOLOv8 Nano (`YOLOv8n`)
+- **Trained Weights Path**: `runs/detect/pothole_training/weights/best.pt` (6.5 MB)
+- **Architecture**: 73 layers, 3,137,700 parameters (3.13M), 8.6 GFLOPs at $640 \times 640$ input
+- **Pretrained Initialization**: Pretrained on MS COCO `yolov8n.pt`
+- **Class Configuration**: Single-class detection: `0: pothole`
+- **Runtime Framework**: Ultralytics YOLO 8.4.175 with PyTorch 2.14.1+cpu
+- **Execution Target**: CPU multi-threaded execution (16 logical threads on Intel Core i7-11700F @ 2.50 GHz)
 
 ---
 
-## 2. Research Objective
-- **Phase 1 Objective**: Baseline 2D pothole detection accuracy using lightweight YOLO on standardized road images.
-- **Phase 2 Objective**: Continuous dashcam video processing, temporal pothole tracking, and real-time FPS benchmarking.
-- **Phase 3 Objective**: Evaluate the environmental robustness of the baseline pothole detection model across diverse real-world illumination and weather conditions:
-  > *"How robust is the dashcam-based pothole detection system under different illumination and weather conditions (Day, Evening, Night, Rain) when evaluated with uniform model weights and hyperparameters?"*
+## 2. Test Set Evaluation Metrics
+
+Evaluated on the independent **74-image labelled test split** (148 ground-truth annotations and 70 negative road images) using standard IoU threshold $0.50$:
+
+| Metric | Empirical Score | Notes |
+| :--- | :---: | :--- |
+| **mAP@0.50** | **71.27% (0.7127)** | Primary academic benchmark metric |
+| **mAP@0.50:0.95** | **45.63% (0.4563)** | Multi-threshold localization metric |
+| **Optimal F1-Score** | **0.6952** | Achieved at confidence threshold $conf = 0.340$ |
+| **Operational Precision ($conf=0.25$)** | **69.59% (0.6959)** | True Positives: 103 / 148 |
+| **Operational Recall ($conf=0.25$)** | **69.59% (0.6959)** | False Positives: 45 \| False Negatives: 45 |
+| **Inference Latency** | **33.3 – 37.4 ms** | Pre: 2.5 ms \| Model: 30.9 ms \| Post (NMS): 2.0 ms |
+| **Real-Time Frame Rate** | **26.8 – 32.1 FPS** | Exceeds 25 FPS video real-time threshold on CPU |
+
+All high-resolution evaluation curves (PR curve, F1-confidence, confusion matrix) are saved in [`../results/evaluation/`](file:///e:/React/Real/Code/MERN-Projects/final_year/results/evaluation/).
 
 ---
 
-## 3. Experimental Principle & Fairness Protocol
-To ensure scientific validity and unbiased comparisons:
-1. **Identical Model**: The exact same Phase 1 trained YOLO weights (`runs/pothole_baseline/weights/best.pt`) are evaluated across all four conditions without condition-specific fine-tuning.
-2. **Identical Hyperparameters**: Image resolution ($640\times 640$) and baseline confidence threshold ($\text{conf}=0.25$) remain strictly uniform across all test groups.
-3. **Isolated Preprocessing Experiments**: Low-light enhancements (e.g., CLAHE, Gamma) are evaluated in separate experimental pipelines and never substituted for original baseline data.
-4. **No Metric Fabrication**: If ground-truth annotations are not provided for a condition, metrics such as precision and mAP are logged as `N/A`, reporting only true measured inference counts, confidence distributions, and FPS.
+## 3. Dataset Engineering
+
+The dataset combines **665 pothole hazard images** (Kaggle `chitholian/annotated-potholes-dataset`) and **70 plain road images** (Kaggle `virenbr11/pothole-and-plain-rode-images`) to prevent false-positive detections on clear pavement.
+
+- **Total Images**: 735 clean road images
+- **Total Annotations**: 1,739 bounding boxes
+- **Split Distribution**:
+  - `dataset/images/train/`: **514 images** (1,274 boxes) — 70%
+  - `dataset/images/val/`: **147 images** (317 boxes) — 20%
+  - `dataset/images/test/`: **74 images** (148 boxes) — 10%
+- **Data Leakage Verification**: All splits audited via SHA-256 image hashes; zero cross-split overlap verified.
 
 ---
 
-## 4. Directory Layout
+## 4. Subsystem Directory Structure
+
 ```
 pothole-research/
+├── data.yaml                               # YOLO dataset configuration
+├── runs/
+│   └── detect/
+│       └── pothole_training/
+│           ├── weights/
+│           │   ├── best.pt                 # Optimal checkpoint (6.5 MB)
+│           │   └── last.pt                 # Epoch 50 final checkpoint
+│           ├── results.csv                 # Per-epoch training/val loss logs
+│           └── confusion_matrix.png        # Training-phase validation matrix
 ├── dataset/
-│   ├── images/             # Phase 1 dataset splits (train, val, test)
-│   ├── labels/             # Phase 1 YOLO format txt labels
-│   ├── day/                # Day condition road test images/videos
-│   ├── evening/            # Evening/low-sun condition road test images/videos
-│   ├── night/              # Nighttime/headlight road test images/videos
-│   └── rain/               # Wet/rainy asphalt road test images/videos
-│
-├── test_images/            # General test media
-├── runs/                   # Model training runs and weights
-├── scripts/
-│   ├── download_dataset.py         # Phase 1: Automated dataset downloader & VOC to YOLO converter
-│   ├── clean_and_prepare_dataset.py# Phase 1: Image validation, SHA-256 deduplication & 70:20:10 splitter
-│   ├── validate_dataset_integrity.py# Phase 1: Cross-split leakage auditor & bbox validator
-│   ├── check_dataset.py            # Phase 1: Quick dataset integrity & split statistics checker
-│   ├── visualize_dataset.py        # Phase 1: Ground-truth visual verification
-│   ├── train.py                    # Phase 1: Baseline YOLO transfer learning training
-│   ├── validate.py                 # Phase 1: Validation evaluation & metrics logger
-│   ├── detect.py           # Phase 1: Basic image/video inference
-│   ├── dashcam.py          # Phase 2: Dashcam tracking, FPS benchmarking & HUD warnings
-│   ├── phase2_report.py    # Phase 2: Dashcam tracking summary generator
-│   ├── record_hardware_info.py # Phase 2: Host hardware profiler for reproducibility
-│   ├── evaluate_conditions.py  # Phase 3: Environmental condition evaluator
-│   ├── create_condition_comparison.py # Phase 3: Cross-condition figure generator
-│   ├── low_light_preprocessing.py     # Phase 3: Optional enhancement experiment
-│   ├── plot_phase3_results.py         # Phase 3: Matplotlib chart generator
-│   ├── generate_phase3_report.py      # Phase 3: Robustness research report generator
-│   └── server.py                      # Phase 3: Live backend API server (POST /api/detect/image)
-│
-├── results/
-│   ├── dataset_samples/    # Bounding-box verification sample outputs
-│   ├── detections/         # Static test detections
-│   ├── phase2_videos/      # Phase 2 annotated output dashcam videos
-│   ├── hardware_info.txt   # Phase 2 host CPU/GPU/OS/framework profiling
-│   └── phase3/
-│       ├── day/            # Annotated Day detection images
-│       ├── evening/        # Annotated Evening detection images
-│       ├── night/          # Annotated Night detection images
-│       ├── rain/           # Annotated Rain detection images
-│       ├── videos/         # Condition-evaluated output videos
-│       ├── comparison/     # Multi-condition comparison grid figures
-│       ├── plots/          # Matplotlib research charts (Confidence, FPS, Metrics)
-│       ├── condition_metrics.csv    # Detailed confidence distributions & FPS
-│       ├── condition_comparison.csv # Cross-condition comparison summary table
-│       ├── image_results.csv        # Live UI inference research log
-│       └── phase3_report.txt        # Full research robustness report
-│
-├── data.yaml               # YOLO dataset configuration
-├── requirements.txt        # Python dependencies
-├── DATASET_PREPARATION_GUIDE.md # Detailed data collection, cleaning & audit guide
-└── README.md
+│   ├── images/                             # train/ (514), val/ (147), test/ (74)
+│   ├── labels/                             # YOLO txt format bounding boxes
+│   ├── day/                                # Day illumination test set
+│   ├── evening/                            # Low-sun / evening test set
+│   ├── night/                              # Night / headlight reflection test set
+│   └── rain/                               # Wet / rain condition test set
+└── scripts/
+    ├── server.py                           # FastAPI REST inference service (:5000)
+    ├── dashcam.py                          # Continuous video tracking & FPS benchmark
+    ├── evaluate_conditions.py              # Day/Evening/Night/Rain robustness suite
+    ├── clean_and_prepare_dataset.py        # Dataset validation & 70/20/10 split generator
+    ├── validate_dataset_integrity.py       # SHA-256 cross-split leakage verification
+    ├── train.py                            # Transfer learning script
+    └── validate.py                         # Test set evaluation logger
 ```
 
 ---
 
-## 5. Dataset Preparation Pipeline (Phase 1)
+## 5. Execution Commands
 
-For comprehensive instructions, see [DATASET_PREPARATION_GUIDE.md](file:///e:/React/Real/Code/MERN-Projects/final_year/pothole-research/DATASET_PREPARATION_GUIDE.md).
-
-### Quick Commands:
+### 1. Launch FastAPI Backend Inference Server
 ```bash
-# 1. Download verified public dataset (Kaggle benchmark)
-python scripts/download_dataset.py --source kaggle --dataset chitholian-potholes --target-dir dataset/raw
+python scripts/server.py --port 5000
+```
+- Swagger UI Documentation: [http://localhost:5000/docs](http://localhost:5000/docs)
+- Health Probe: [http://localhost:5000/api/health](http://localhost:5000/api/health)
 
-# 2. Clean, deduplicate (SHA-256), validate bounding boxes & split (70:20:10)
-python scripts/clean_and_prepare_dataset.py --raw-dir dataset/raw --output-dir dataset --classes pothole --split 0.7,0.2,0.1 --seed 42 --yaml data.yaml
-
-# 3. Verify dataset integrity & zero cross-split data leakage
-python scripts/validate_dataset_integrity.py --yaml data.yaml --report-dir results
-
-# 4. Visually verify sample bounding boxes
-python scripts/visualize_dataset.py --split train --samples 5
+### 2. Run Dashcam Video Stream Tracking
+```bash
+python scripts/dashcam.py --source test_images/road_video.mp4 --weights runs/detect/pothole_training/weights/best.pt
 ```
 
----
-
-## 6. How to Run Phase 3
-
-### Step 1: Place Test Data in Condition Folders
-Add test road images (`.jpg`, `.png`) or video files (`.mp4`) into:
-- `dataset/day/`
-- `dataset/evening/`
-- `dataset/night/`
-- `dataset/rain/`
-
-### Step 2: Evaluate Environmental Robustness
+### 3. Evaluate Environmental Robustness
 ```bash
-# Evaluate all available conditions:
+# Evaluate all conditions (Day, Evening, Night, Rain):
 python scripts/evaluate_conditions.py
 
-# Evaluate a specific condition (e.g., night or rain):
-python scripts/evaluate_conditions.py --condition night
-python scripts/evaluate_conditions.py --condition rain --conf 0.25
-
-# Evaluate a specific video file under a condition:
-python scripts/evaluate_conditions.py --condition night --source dataset/night/night_dashcam.mp4
+# Evaluate a specific condition:
+python scripts/evaluate_conditions.py --condition night --conf 0.25
 ```
 
-### Step 3: (Optional) Test Low-Light Enhancement Experiment
+### 4. Verify Dataset Integrity & Zero Cross-Split Leakage
 ```bash
-# Generate CLAHE-enhanced test images in a separate folder:
-python scripts/low_light_preprocessing.py --input dataset/night --output dataset/night_enhanced --method clahe
-
-# Evaluate the enhanced images independently:
-python scripts/evaluate_conditions.py --condition night --source dataset/night_enhanced
+python scripts/validate_dataset_integrity.py --yaml data.yaml --report-dir ../results
 ```
-
-### Step 4: Generate Side-by-Side Comparison Figures
-```bash
-python scripts/create_condition_comparison.py
-```
-*Saves 4-way comparison grid to `results/phase3/comparison/`.*
-
-### Step 5: Generate Research Plots & Charts
-```bash
-python scripts/plot_phase3_results.py
-```
-*Saves publication-quality plots (Confidence, FPS, Metrics) to `results/phase3/plots/`.*
-
-### Step 6: Generate Robustness Summary Report
-```bash
-python scripts/generate_phase3_report.py
-```
-*Generates `results/phase3/phase3_report.txt`.*
-
-### Step 7: Launch Live Image Upload & Result View Web Interface
-```bash
-# Terminal 1: Start the Python Backend API Server (Port 5000)
-cd pothole-research
-python scripts/server.py
-
-# Terminal 2: Start the React Frontend Application (Port 5173)
-cd ..
-npm run dev
-```
-Open `http://localhost:5173` in your web browser. Upload any road image, select test metadata (`Day`, `Evening`, `Night`, `Rain`), adjust confidence threshold, and click **[ Detect Potholes ]**. Research outputs and latency will be automatically saved to `results/phase3/image_results.csv`.
 
 ---
 
-## 6. Current Limitations (Phase 3 Scope)
-- ❌ **Depth & Spatial Geometry**: 2D bounding boxes under rain/night do not determine puddle depth or true physical hazard severity.
-- ❌ **Safe-Path Recommendation**: Dynamic obstacle avoidance paths belong to Phase 6.
-- ❌ **Hardware/Sensor Differences**: Camera ISO settings, headlight quality, and rain wiper interference vary across dashcams.
+## 6. Academic References & Master Handbook
 
----
-
-## 7. Research Roadmap
-
-```
-PHASE 1
-Baseline YOLO Detection
-✓ Completed
-
-      ↓
-
-PHASE 2
-Dashcam Video + Pothole Tracking
-✓ Completed
-
-      ↓
-
-PHASE 3
-Environmental Robustness (DAY / EVENING / NIGHT / RAIN)
-← CURRENT PHASE
-
-      ↓
-
-PHASE 4
-Severity Index & Dynamic Risk Assessment Formulation
-
-      ↓
-
-PHASE 5
-Calibrated Dimension and Depth Estimation
-
-      ↓
-
-PHASE 6
-Drivable-Area Segmentation & Visible Safe-Region Recommendation
-
-      ↓
-
-PHASE 7
-Embedded Edge Hardware & Real-World In-Vehicle Testing
-
-      ↓
-
-PHASE 8
-Comprehensive Empirical Evaluation & IEEE Research Paper Submission
-```
+For full theoretical derivations, YOLOv8n layer breakdowns, loss functions, and viva voce defense questions, refer to the master documentation in the root directory:
+- [Complete Project Technical Handbook (`PROJECT_TECHNICAL_HANDBOOK.md`)](file:///e:/React/Real/Code/MERN-Projects/final_year/PROJECT_TECHNICAL_HANDBOOK.md)
+- [Project Viva Voce Examination Guide (`PROJECT_VIVA_QUESTIONS.md`)](file:///e:/React/Real/Code/MERN-Projects/final_year/PROJECT_VIVA_QUESTIONS.md)
+- [Project Source Code Map (`PROJECT_SOURCE_CODE_MAP.md`)](file:///e:/React/Real/Code/MERN-Projects/final_year/PROJECT_SOURCE_CODE_MAP.md)
+- [Implementation Verification Report (`PROJECT_IMPLEMENTATION_VERIFICATION_REPORT.md`)](file:///e:/React/Real/Code/MERN-Projects/final_year/PROJECT_IMPLEMENTATION_VERIFICATION_REPORT.md)

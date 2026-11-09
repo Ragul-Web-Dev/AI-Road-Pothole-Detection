@@ -1,5 +1,5 @@
 """
-Dataset Visualization Script - Phase 1 Research Pipeline
+Dataset Visualization Script
 Selects sample images, parses YOLO bounding boxes, and exports visual verification samples.
 """
 

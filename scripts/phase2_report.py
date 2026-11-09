@@ -1,5 +1,5 @@
 """
-Phase 2 Report Generator Script
+Dashcam Video Performance Report Generator
 Reads results/phase2_video_metrics.csv and results/phase2_tracking_results.csv
 to generate an empirical summary of dashcam performance and pothole tracking consistency.
 """
@@ -13,7 +13,7 @@ def generate_report(metrics_csv="results/phase2_video_metrics.csv", tracking_csv
     tracking_path = Path(tracking_csv)
 
     print("=" * 60)
-    print("PHASE 2 DASHCAM RESULTS SUMMARY")
+    print("DASHCAM VIDEO PROCESSING RESULTS SUMMARY")
     print("=" * 60)
 
     if not metrics_path.exists() or metrics_path.stat().st_size == 0:

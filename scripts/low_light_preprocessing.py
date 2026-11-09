@@ -1,5 +1,5 @@
 """
-Optional Low-Light & Weather Preprocessing Module - Phase 3 Research Pipeline
+Low-Light & Weather Preprocessing Module
 Provides isolated image enhancements (CLAHE, Gamma Correction, Brightness Normalization)
 for separate comparative evaluation without altering original baseline test data.
 """

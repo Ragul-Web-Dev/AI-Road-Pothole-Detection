@@ -1,6 +1,6 @@
 """
-Phase 3: Environmental Robustness Evaluation Script
-Evaluates the baseline Phase 1 YOLO pothole detection model across Day, Evening, Night, and Rain conditions.
+Environmental Robustness Evaluation Script
+Evaluates the trained YOLO pothole detection model across Day, Evening, Night, and Rain conditions.
 Measures real detection counts, confidence distributions, inference FPS, and condition-specific metrics.
 """
 
@@ -214,7 +214,7 @@ def run_evaluation(condition="all", source=None, weights="runs/pothole_baseline/
     weights_path = Path(weights)
     if not weights_path.exists():
         print("=" * 60)
-        print("[ERROR] Phase 1 trained model is required before Phase 3.")
+        print("[ERROR] Trained YOLO model weights are required.")
         print(f"Target model weights not found at: {weights_path}")
         print("Please train your baseline model first:")
         print("  python scripts/train.py --epochs 20")
@@ -222,7 +222,7 @@ def run_evaluation(condition="all", source=None, weights="runs/pothole_baseline/
         return
 
     print("=" * 60)
-    print("PHASE 3 ENVIRONMENTAL ROBUSTNESS EVALUATION")
+    print("ENVIRONMENTAL ROBUSTNESS EVALUATION")
     print("=" * 60)
     print(f"Model Weights:        {weights_path}")
     print(f"Confidence Threshold: {conf}")

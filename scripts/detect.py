@@ -1,5 +1,5 @@
 """
-Inference & Detection Script - Phase 1 Research Pipeline
+Inference & Detection Script
 Processes test images or road dashcam video, performs YOLO pothole detection,
 and renders visual bounding boxes with confidence scores.
 """

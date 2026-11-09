@@ -1,5 +1,5 @@
 """
-Dataset Collection and Download Script - Phase 1 ML Pipeline
+Dataset Collection and Download Script
 AI-Based Road Hazard Early Detection and Adaptive Safe-Speed Warning System
 
 Downloads verified publicly available road hazard datasets (Kaggle / Roboflow Universe)
