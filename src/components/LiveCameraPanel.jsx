@@ -23,7 +23,7 @@ import {
 
 const API_BASE_URL = 'http://localhost:5000';
 
-export default function LiveCameraPanel({ backendOnline, legalSpeedLimit, setLegalSpeedLimit }) {
+export default function LiveCameraPanel({ backendOnline, legalSpeedLimit, setLegalSpeedLimit, onRetryBackend }) {
   const [isStreaming, setIsStreaming] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [cameraDevices, setCameraDevices] = useState([]);
@@ -124,7 +124,7 @@ export default function LiveCameraPanel({ backendOnline, legalSpeedLimit, setLeg
       if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
         errorMsg = 'Camera permission was denied. Please allow camera access in your browser settings, or use the Simulated Stream mode.';
       } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
-        errorMsg = 'No camera device detected on this system. You can switch to the Simulated Benchmark Stream mode below.';
+        errorMsg = 'No camera device detected on this system. You can switch to the Simulated Stream mode below.';
       } else if (err.name === 'NotReadableError' || err.name === 'TrackStartError') {
         errorMsg = 'Camera is already in use by another application or tab.';
       } else {
@@ -335,17 +335,28 @@ export default function LiveCameraPanel({ backendOnline, legalSpeedLimit, setLeg
   return (
     <div className="space-y-6">
       {!backendOnline && (
-        <div className="bg-amber-50 border border-amber-300 rounded-xl p-4 text-xs text-amber-900 flex items-start gap-3 shadow-sm">
-          <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
-          <div>
-            <div className="font-bold text-amber-950">FastAPI ML Backend Service Offline</div>
-            <div className="mt-0.5 text-amber-800">
-              Live camera inference requires the FastAPI backend to be running with the trained YOLOv8n checkpoint.
-            </div>
-            <div className="mt-2 text-[12px] font-mono bg-amber-100 p-2 rounded border border-amber-300">
-              python pothole-research/scripts/server.py --port 5000
+        <div className="bg-amber-50 border border-amber-300 rounded-xl p-4 text-xs text-amber-900 flex flex-col sm:flex-row sm:items-start justify-between gap-3 shadow-sm">
+          <div className="flex items-start gap-3">
+            <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+            <div>
+              <div className="font-bold text-amber-950">FastAPI ML Backend Service Offline</div>
+              <div className="mt-0.5 text-amber-800">
+                Live camera inference requires the FastAPI backend to be running with the trained YOLOv8n checkpoint.
+              </div>
+              <div className="mt-2 text-[12px] font-mono bg-amber-100 p-2 rounded border border-amber-300 select-all">
+                python pothole-research/scripts/server.py --port 5000
+              </div>
             </div>
           </div>
+          {onRetryBackend && (
+            <button
+              onClick={onRetryBackend}
+              className="px-3 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold transition shrink-0 inline-flex items-center gap-1.5 self-start"
+            >
+              <RefreshCw className="w-3.5 h-3.5" />
+              Retry Connection
+            </button>
+          )}
         </div>
       )}
 

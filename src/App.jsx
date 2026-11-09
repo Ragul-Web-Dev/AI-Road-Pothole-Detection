@@ -1,41 +1,25 @@
 import React, { useState, useEffect, useRef } from 'react';
-import {
-  SAMPLES,
-  RESEARCH_PROGRESS_ITEMS,
-  TIMELINE_DATA,
-  METHODOLOGY_STEPS,
-} from './data/mockData';
-import RoadCanvas from './components/RoadCanvas';
 import LiveCameraPanel from './components/LiveCameraPanel';
 import {
   AlertTriangle,
   Camera,
   CheckCircle2,
   Circle,
-  Clock,
-  Database,
   Download,
   Eye,
   FileCheck,
   Gauge,
-  HardDrive,
-  ImageIcon,
   Info,
-  Layers,
   Moon,
-  Navigation,
   RefreshCw,
   RotateCcw,
-  Route,
   Server,
   ShieldAlert,
   ShieldCheck,
   Sliders,
-  Sparkles,
   Sun,
   Sunset,
   CloudRain,
-  Target,
   UploadCloud,
   Volume2,
   XCircle,
@@ -61,12 +45,6 @@ export default function App() {
   const [presetSamples, setPresetSamples] = useState([]);
 
   const fileInputRef = useRef(null);
-
-  const [selectedSampleIndex, setSelectedSampleIndex] = useState(0);
-  const [uploadedSampleImage, setUploadedSampleImage] = useState(null);
-  const reviewFileRef = useRef(null);
-
-  const currentSample = SAMPLES[selectedSampleIndex];
 
   const checkBackendHealth = async () => {
     setBackendStatus((prev) => ({ ...prev, checking: true }));
@@ -99,6 +77,8 @@ export default function App() {
 
   useEffect(() => {
     checkBackendHealth();
+    const interval = setInterval(checkBackendHealth, 5000);
+    return () => clearInterval(interval);
   }, []);
 
   const handleFileSelect = (file) => {
@@ -231,18 +211,18 @@ export default function App() {
             <div className="flex items-center gap-2">
               <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200">
                 <FileCheck className="w-3.5 h-3.5" />
-                AI-Based Road Hazard Early Detection System
+                Final Year Project
               </span>
               <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
                 <Volume2 className="w-3 h-3 text-emerald-600" />
-                Segment 4: Live Audio & Camera Active
+                Real-Time Inference Active
               </span>
             </div>
             <h1 className="text-xl sm:text-2xl font-black text-slate-900 mt-1 tracking-tight">
-              Road Hazard Early Detection & Adaptive Safe-Speed Warning System
+              Real-Time Road Pothole Detection and Driver Warning System
             </h1>
             <p className="text-xs sm:text-sm text-slate-500 font-medium">
-              Deep Learning Vision Pipeline • Ultralytics YOLOv8n Research Benchmark
+              Deep Learning Vision Pipeline • Ultralytics YOLOv8n Real-Time Inference
             </p>
           </div>
 
@@ -285,27 +265,15 @@ export default function App() {
               </button>
 
               <button
-                onClick={() => setActiveTab('segment3')}
+                onClick={() => setActiveTab('upload')}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-bold transition ${
-                  activeTab === 'segment3'
+                  activeTab === 'upload'
                     ? 'bg-blue-600 text-white shadow-sm'
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
                 <UploadCloud className="w-3.5 h-3.5" />
-                Image Upload
-              </button>
-
-              <button
-                onClick={() => setActiveTab('review')}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-bold transition ${
-                  activeTab === 'review'
-                    ? 'bg-blue-600 text-white shadow-sm'
-                    : 'text-slate-600 hover:text-slate-900'
-                }`}
-              >
-                <Layers className="w-3.5 h-3.5" />
-                Phase 1 & 2 Prototype
+                Road Image Detection
               </button>
             </div>
           </div>
@@ -319,10 +287,11 @@ export default function App() {
             backendOnline={backendStatus.online}
             legalSpeedLimit={legalSpeedLimit}
             setLegalSpeedLimit={setLegalSpeedLimit}
+            onRetryBackend={checkBackendHealth}
           />
         )}
 
-        {activeTab === 'segment3' && (
+        {activeTab === 'upload' && (
           <div className="space-y-6">
 
             {!backendStatus.online && (
@@ -386,7 +355,7 @@ export default function App() {
                     Image Upload & Prediction Parameters
                   </h2>
                   <p className="text-xs text-slate-500">
-                    Upload a road surface image or pick a test benchmark sample to execute genuine YOLOv8n hazard detection.
+                    Upload a road surface image or select a test sample to execute genuine YOLOv8n pothole detection.
                   </p>
                 </div>
                 <div className="flex items-center gap-2 font-mono text-xs bg-slate-50 px-2.5 py-1 rounded border border-slate-200 text-slate-600">
@@ -455,7 +424,7 @@ export default function App() {
                   {presetSamples.length > 0 && (
                     <div className="pt-2">
                       <div className="text-[11px] font-bold text-slate-600 uppercase mb-1.5">
-                        Or select benchmark test dataset sample:
+                        Or select a test road image sample:
                       </div>
                       <div className="flex flex-wrap gap-1.5">
                         {presetSamples.map((s) => (
@@ -924,358 +893,15 @@ export default function App() {
           </div>
         )}
 
-        {activeTab === 'review' && (
-          <div className="space-y-8">
-            <section className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
-              <div className="flex items-center justify-between mb-4 pb-2 border-b border-slate-100">
-                <div className="flex items-center gap-2">
-                  <Layers className="w-5 h-5 text-blue-600" />
-                  <h2 className="text-base font-bold text-slate-800">
-                    Research Methodology Flow Architecture
-                  </h2>
-                </div>
-                <span className="text-xs font-medium text-slate-500">End-to-End Pipeline</span>
-              </div>
-
-              <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2.5">
-                {METHODOLOGY_STEPS.map((step, idx) => (
-                  <div key={step.id} className="relative flex flex-col">
-                    <div className="bg-slate-50 hover:bg-blue-50/60 transition-colors border border-slate-200 hover:border-blue-300 rounded-lg p-3 text-center flex-1 flex flex-col justify-between">
-                      <div>
-                        <span className="inline-block w-5 h-5 rounded-full bg-blue-600 text-white text-[11px] font-bold leading-5 mb-1.5 shadow-sm">
-                          {step.id}
-                        </span>
-                        <div className="text-[11px] font-bold text-slate-800 leading-tight uppercase">
-                          {step.title}
-                        </div>
-                      </div>
-                      <div className="text-[10px] text-slate-500 mt-1 font-mono">
-                        {step.desc}
-                      </div>
-                    </div>
-
-                    {idx < METHODOLOGY_STEPS.length - 1 && (
-                      <div className="hidden lg:flex absolute -right-2 top-1/2 -translate-y-1/2 z-10 text-slate-400 font-bold text-xs pointer-events-none">
-                        →
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </section>
-
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-
-              <div className="lg:col-span-7 space-y-6">
-
-                <section className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 pb-2 border-b border-slate-100">
-                    <div className="flex items-center gap-2">
-                      <Eye className="w-5 h-5 text-blue-600" />
-                      <h2 className="text-base font-bold text-slate-800">
-                        1. Road Image Analysis (Benchmark Sample)
-                      </h2>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="file"
-                        ref={reviewFileRef}
-                        onChange={(e) => {
-                          const f = e.target.files?.[0];
-                          if (f) setUploadedSampleImage(URL.createObjectURL(f));
-                        }}
-                        accept="image/*"
-                        className="hidden"
-                      />
-                      <button
-                        onClick={() => reviewFileRef.current?.click()}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-blue-600 text-white hover:bg-blue-700 shadow-sm transition"
-                      >
-                        <UploadCloud className="w-3.5 h-3.5" />
-                        Upload Road Image
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="flex flex-wrap items-center gap-2 mb-3">
-                    <span className="text-xs font-semibold text-slate-500 mr-1">Predefined Samples:</span>
-                    {SAMPLES.map((sample, idx) => (
-                      <button
-                        key={sample.id}
-                        onClick={() => {
-                          setSelectedSampleIndex(idx);
-                          setUploadedSampleImage(null);
-                        }}
-                        className={`px-3 py-1 rounded-md text-xs font-semibold transition border ${
-                          !uploadedSampleImage && selectedSampleIndex === idx
-                            ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
-                            : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
-                        }`}
-                      >
-                        {sample.shortName}
-                      </button>
-                    ))}
-                    {uploadedSampleImage && (
-                      <button
-                        onClick={() => setUploadedSampleImage(null)}
-                        className="px-2.5 py-1 rounded-md text-xs font-semibold bg-red-50 text-red-700 border border-red-200 hover:bg-red-100"
-                      >
-                        Clear Upload
-                      </button>
-                    )}
-                  </div>
-
-                  <RoadCanvas sample={currentSample} uploadedImage={uploadedSampleImage} />
-
-                  <div className="mt-3 flex items-center justify-between text-xs text-slate-500 bg-slate-50 px-3 py-2 rounded-lg border border-slate-200">
-                    <div className="flex items-center gap-2">
-                      <span className="font-semibold text-slate-700">Active Scene:</span>
-                      <span>{uploadedSampleImage ? 'Custom Road Image' : currentSample.title}</span>
-                    </div>
-                    <div className="font-mono text-slate-600">
-                      Status: <span className="text-red-600 font-bold">POTHOLE DETECTED</span> ({currentSample.confidence})
-                    </div>
-                  </div>
-                </section>
-
-                <section className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
-                  <div className="flex items-center justify-between mb-3 pb-2 border-b border-slate-100">
-                    <div className="flex items-center gap-2">
-                      <Route className="w-5 h-5 text-emerald-600" />
-                      <h2 className="text-base font-bold text-slate-800">
-                        3. Safe Path Identification
-                      </h2>
-                    </div>
-                    <span className="text-xs font-semibold px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
-                      Visible-frame safe-region recommendation
-                    </span>
-                  </div>
-
-                  <div className="grid grid-cols-3 gap-3 mb-4">
-                    {['left', 'center', 'right'].map((laneKey) => {
-                      const reg = currentSample.regions[laneKey];
-                      return (
-                        <div
-                          key={laneKey}
-                          className={`rounded-lg p-3.5 border-2 text-center transition ${
-                            reg.color === 'RED'
-                              ? 'bg-red-50/80 border-red-500 text-red-900'
-                              : reg.recommended
-                              ? 'bg-emerald-50 border-emerald-500 text-emerald-900 ring-2 ring-emerald-400'
-                              : 'bg-emerald-50/40 border-emerald-300 text-emerald-800'
-                          }`}
-                        >
-                          <div className="text-xs font-bold font-mono tracking-wider uppercase">{laneKey} LANE</div>
-                          <div className="my-1.5 flex items-center justify-center gap-1.5 font-extrabold text-sm">
-                            {reg.color === 'RED' ? (
-                              <>
-                                <XCircle className="w-4 h-4 text-red-600" />
-                                <span className="text-red-700">RED (RISK)</span>
-                              </>
-                            ) : (
-                              <>
-                                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                                <span className="text-emerald-700">GREEN</span>
-                              </>
-                            )}
-                          </div>
-                          <div className="text-[11px] font-medium opacity-80">{reg.label}</div>
-                          {reg.recommended && (
-                            <span className="mt-2 inline-block px-2 py-0.5 text-[10px] font-bold bg-emerald-600 text-white rounded">
-                              ★ RECOMMENDED
-                            </span>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-
-                  <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                        <span className="text-xs font-bold text-emerald-900 uppercase tracking-wide">
-                          SAFE PATH IDENTIFIED
-                        </span>
-                      </div>
-                      <div className="text-sm font-extrabold text-emerald-800 mt-0.5">
-                        Recommended Region: <span className="underline decoration-emerald-500">{currentSample.recommendedRegion}</span>
-                      </div>
-                      <p className="text-xs text-emerald-700 mt-1 font-medium">
-                        Reason: {currentSample.reason}
-                      </p>
-                    </div>
-                  </div>
-                </section>
-              </div>
-
-              <div className="lg:col-span-5 space-y-6">
-
-                <section className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
-                  <div className="flex items-center justify-between mb-4 pb-2 border-b border-slate-100">
-                    <div className="flex items-center gap-2">
-                      <Target className="w-5 h-5 text-blue-600" />
-                      <h2 className="text-base font-bold text-slate-800">
-                        2. Pothole Analysis
-                      </h2>
-                    </div>
-                    <span className="text-xs font-bold px-2.5 py-0.5 rounded-full border bg-red-100 text-red-800 border-red-300">
-                      {currentSample.severity} SEVERITY
-                    </span>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-3 mb-4">
-                    <div className="bg-slate-50 rounded-lg p-3 border border-slate-200">
-                      <div className="text-[11px] font-semibold text-slate-500 uppercase">Detection Confidence</div>
-                      <div className="text-xl font-extrabold text-blue-700 mt-0.5 font-mono">{currentSample.confidence}</div>
-                    </div>
-                    <div className="bg-slate-50 rounded-lg p-3 border border-slate-200">
-                      <div className="text-[11px] font-semibold text-slate-500 uppercase">Risk Score</div>
-                      <div className="text-xl font-extrabold text-slate-900 mt-0.5 font-mono">{currentSample.riskScore} / 100</div>
-                    </div>
-                    <div className="bg-slate-50 rounded-lg p-3 border border-slate-200">
-                      <div className="text-[11px] font-semibold text-slate-500 uppercase">Estimated Length</div>
-                      <div className="text-lg font-bold text-slate-800 font-mono mt-0.5">{currentSample.length}</div>
-                    </div>
-                    <div className="bg-slate-50 rounded-lg p-3 border border-slate-200">
-                      <div className="text-[11px] font-semibold text-slate-500 uppercase">Estimated Width</div>
-                      <div className="text-lg font-bold text-slate-800 font-mono mt-0.5">{currentSample.width}</div>
-                    </div>
-                    <div className="col-span-2 bg-blue-50/50 rounded-lg p-3 border border-blue-200/80 flex items-center justify-between">
-                      <div>
-                        <div className="text-[11px] font-bold text-blue-900 uppercase">Estimated Depth</div>
-                        <div className="text-xl font-extrabold text-blue-800 font-mono mt-0.5">{currentSample.depth}</div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="bg-amber-50/80 border border-amber-200 rounded-lg p-3 text-xs text-amber-900 flex items-start gap-2.5">
-                    <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-                    <p className="leading-relaxed">
-                      <span className="font-bold">Research Note:</span> “Prototype estimation. Real-world depth measurement requires calibrated camera, stereo/depth sensing, or equivalent validation.”
-                    </p>
-                  </div>
-                </section>
-
-                <section className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
-                  <div className="flex items-center justify-between mb-4 pb-2 border-b border-slate-100">
-                    <div className="flex items-center gap-2">
-                      <Database className="w-5 h-5 text-blue-600" />
-                      <h2 className="text-base font-bold text-slate-800">5. Dataset Overview</h2>
-                    </div>
-                    <span className="text-[11px] font-medium text-slate-500">Clean Staged Dataset</span>
-                  </div>
-
-                  <div className="bg-slate-50 rounded-lg border border-slate-200 p-4 space-y-3">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <div className="text-xs font-semibold text-slate-500 uppercase">Dataset Total</div>
-                        <div className="text-2xl font-extrabold text-slate-900 font-mono">
-                          735{' '}
-                          <span className="text-xs font-normal text-slate-500">Images (1,739 Potholes)</span>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-1.5">
-                        <span className="px-2 py-0.5 text-[11px] font-bold rounded bg-blue-100 text-blue-800 border border-blue-200">
-                          pothole
-                        </span>
-                        <span className="px-2 py-0.5 text-[11px] font-bold rounded bg-emerald-100 text-emerald-800 border border-emerald-200">
-                          normal_road
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="h-3 w-full bg-slate-200 rounded-full overflow-hidden flex shadow-inner">
-                      <div style={{ width: `70%` }} className="bg-blue-600 h-full" title="Train: 514"></div>
-                      <div style={{ width: `20%` }} className="bg-amber-500 h-full" title="Validation: 147"></div>
-                      <div style={{ width: `10%` }} className="bg-emerald-500 h-full" title="Test: 74"></div>
-                    </div>
-                    <div className="flex justify-between text-[11px] font-mono text-slate-500">
-                      <span>Train: 70% (514)</span>
-                      <span>Val: 20% (147)</span>
-                      <span>Test: 10% (74)</span>
-                    </div>
-                  </div>
-                </section>
-
-              </div>
-            </div>
-
-            <section className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
-              <div className="flex items-center justify-between mb-5 pb-2 border-b border-slate-100">
-                <div className="flex items-center gap-2">
-                  <Clock className="w-5 h-5 text-blue-600" />
-                  <h2 className="text-base font-bold text-slate-800">
-                    4. Research Progress Roadmap
-                  </h2>
-                </div>
-                <span className="text-xs font-extrabold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 border border-emerald-200">
-                  Phase 1 & 2 Completed • Segment 3 & 4 Active
-                </span>
-              </div>
-
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                <div className="lg:col-span-6 space-y-4">
-                  <div className="space-y-4 relative before:absolute before:left-3.5 before:top-3 before:bottom-3 before:w-0.5 before:bg-slate-200">
-                    {TIMELINE_DATA.map((t) => (
-                      <div key={t.stage} className="relative pl-8">
-                        <div className={`absolute left-2 top-1 w-3.5 h-3.5 rounded-full border-2 border-white shadow-sm ${t.dotColor}`}></div>
-                        <div className="bg-slate-50 rounded-lg p-3.5 border border-slate-200">
-                          <div className="flex items-center justify-between mb-2">
-                            <span className="text-xs font-extrabold text-slate-900">{t.stage}</span>
-                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${t.badgeColor}`}>{t.status}</span>
-                          </div>
-                          <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-2 gap-y-1 text-xs text-slate-700">
-                            {t.items.map((item, i) => (
-                              <li key={i} className="flex items-center gap-1.5">
-                                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                                <span>{item}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="lg:col-span-6 bg-slate-50 rounded-lg p-4 border border-slate-200 space-y-3">
-                  {RESEARCH_PROGRESS_ITEMS.map((item) => (
-                    <div key={item.name} className="space-y-1">
-                      <div className="flex justify-between text-xs font-medium text-slate-700">
-                        <span className="font-semibold text-slate-800">{item.name}</span>
-                        <span className="font-mono font-bold text-slate-600">{item.progress}%</span>
-                      </div>
-                      <div className="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
-                        <div
-                          className={`h-2 rounded-full ${
-                            item.progress === 100
-                              ? 'bg-emerald-500'
-                              : item.progress >= 70
-                              ? 'bg-blue-600'
-                              : 'bg-amber-500'
-                          }`}
-                          style={{ width: `${item.progress}%` }}
-                        ></div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </section>
-          </div>
-        )}
-
       </main>
 
       <footer className="bg-white border-t border-slate-200 py-4 mt-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500">
           <div>
-            <span className="font-semibold text-slate-700">Project:</span> AI-Based Road Hazard Early Detection & Adaptive Safe-Speed Warning System
+            <span className="font-semibold text-slate-700">Project:</span> Real-Time Road Pothole Detection and Driver Warning System
           </div>
           <div>
-            <span className="font-semibold text-slate-700">Status:</span> Segment 4 Live Camera & Audio Warning Active
+            <span className="font-semibold text-slate-700">System Status:</span> Live Inference & Driver Warning Active
           </div>
         </div>
       </footer>
